@@ -1,24 +1,24 @@
-//Подключаем заголовочный файл класса
+//ГЏГ®Г¤ГЄГ«ГѕГ·Г ГҐГ¬ Г§Г ГЈГ®Г«Г®ГўГ®Г·Г­Г»Г© ГґГ Г©Г« ГЄГ«Г Г±Г±Г 
 #include "ConverterJson.h"
-//Подключаем библиотеку nlohmann/json для работы с JSON
+//ГЏГ®Г¤ГЄГ«ГѕГ·Г ГҐГ¬ ГЎГЁГЎГ«ГЁГ®ГІГҐГЄГі nlohmann/json Г¤Г«Гї Г°Г ГЎГ®ГІГ» Г± JSON
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 
-//Сокращаем длинное название библиотеки
+//Г‘Г®ГЄГ°Г Г№Г ГҐГ¬ Г¤Г«ГЁГ­Г­Г®ГҐ Г­Г Г§ГўГ Г­ГЁГҐ ГЎГЁГЎГ«ГЁГ®ГІГҐГЄГЁ
 using json = nlohmann::json;
 
-//Чтение содержимого файлов, указанных в файдах config
+//Г—ГІГҐГ­ГЁГҐ Г±Г®Г¤ГҐГ°Г¦ГЁГ¬Г®ГЈГ® ГґГ Г©Г«Г®Гў, ГіГЄГ Г§Г Г­Г­Г»Гµ Гў ГґГ Г©Г¤Г Гµ config
 std::vector<std::string> ConverterJson::GetTextDocuments() {
     std::vector<std::string> texts;
-    //Открываем
+    //ГЋГІГЄГ°Г»ГўГ ГҐГ¬
     std::ifstream file("config.json");
     if (!file.is_open()) {
         std::cerr << "config.json not found!\n";
         return texts;
     }
-    //Получаем структуру данных
+    //ГЏГ®Г«ГіГ·Г ГҐГ¬ Г±ГІГ°ГіГЄГІГіГ°Гі Г¤Г Г­Г­Г»Гµ
     json data;
     file >> data;
 
@@ -36,7 +36,7 @@ std::vector<std::string> ConverterJson::GetTextDocuments() {
     return texts;
 }
 
-//Чтение максимального количества ответов из config
+//Г—ГІГҐГ­ГЁГҐ Г¬Г ГЄГ±ГЁГ¬Г Г«ГјГ­Г®ГЈГ® ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ  Г®ГІГўГҐГІГ®Гў ГЁГ§ config
 int ConverterJson::GetResponsesLimit() {
     std::ifstream file("config.json");
     if (!file.is_open()) return 5;
@@ -46,7 +46,7 @@ int ConverterJson::GetResponsesLimit() {
     return data["config"].value("max_responses", 5);
 }
 
-//Чтение запросов из requests
+//Г—ГІГҐГ­ГЁГҐ Г§Г ГЇГ°Г®Г±Г®Гў ГЁГ§ requests
 std::vector<std::string> ConverterJson::GetRequests() {
     std::vector<std::string> requests;
     std::ifstream file("requests.json");
@@ -54,26 +54,26 @@ std::vector<std::string> ConverterJson::GetRequests() {
 
     json data;
     file >> data;
-    //Заполняем вектор запросами из массива
+    //Г‡Г ГЇГ®Г«Г­ГїГҐГ¬ ГўГҐГЄГІГ®Г° Г§Г ГЇГ°Г®Г±Г Г¬ГЁ ГЁГ§ Г¬Г Г±Г±ГЁГўГ 
     for (const auto& req : data["requests"]) {
         requests.push_back(req.get<std::string>());
     }
     return requests;
 }
 
-//Запись результатов в answers
+//Г‡Г ГЇГЁГ±Гј Г°ГҐГ§ГіГ«ГјГІГ ГІГ®Гў Гў answers
 void ConverterJson::putAnswers(const std::vector<std::vector<std::pair<int, float>>>& answers) {
     json result;
     int i = 1;
-    //Для каждого запроса, ответ
+    //Г„Г«Гї ГЄГ Г¦Г¤Г®ГЈГ® Г§Г ГЇГ°Г®Г±Г , Г®ГІГўГҐГІ
     for (const auto& answer : answers) {
         std::string key = "request" + std::string(3 - std::to_string(i).length(), '0') + std::to_string(i);
         if (answer.empty()) {
-            //Если документов нет -false
+            //Г…Г±Г«ГЁ Г¤Г®ГЄГіГ¬ГҐГ­ГІГ®Гў Г­ГҐГІ -false
             result["answers"][key]["result"] = false;
         }
         else {
-            //Если документы найдены - true и список relevance
+            //Г…Г±Г«ГЁ Г¤Г®ГЄГіГ¬ГҐГ­ГІГ» Г­Г Г©Г¤ГҐГ­Г» - true ГЁ Г±ГЇГЁГ±Г®ГЄ relevance
             result["answers"][key]["result"] = true;
             for (const auto& [docid, rank] : answer) {
                 result["answers"][key]["relevance"].push_back({ {"docid", docid}, {"rank", rank} });
@@ -82,7 +82,7 @@ void ConverterJson::putAnswers(const std::vector<std::vector<std::pair<int, floa
         i++;
     }
 
-    //Записываем результат в файл с отступом 4 пробела
+    //Г‡Г ГЇГЁГ±Г»ГўГ ГҐГ¬ Г°ГҐГ§ГіГ«ГјГІГ ГІ Гў ГґГ Г©Г« Г± Г®ГІГ±ГІГіГЇГ®Г¬ 4 ГЇГ°Г®ГЎГҐГ«Г 
     std::ofstream file("answers.json");
     file << result.dump(4);
 }
